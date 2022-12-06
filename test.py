@@ -7,6 +7,8 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import time
+
 
 ocr = ddddocr.DdddOcr()
 a = 0
@@ -15,19 +17,22 @@ def OpenBrowser():
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
     global browser
-    browser = webdriver.Chrome('chromedriver')
+    browser = webdriver.Chrome('/Users/patrick/Desktop/test/chromedriver')
     browser.get(mainUrl)
-    # browser.maximize_window()
+    browser.maximize_window()
+    browser.execute_script('window.scrollTo(0, 500)')
 
 def StartInit():
     while 1:
         try:
             browser.find_element(By.XPATH,"//button[@id='start']").click()
+            time.sleep(3)
             break
         except:
             print ('Init Error')
 def GetImage():
         while 1:
+            global a
             try:
                 global img_base64
                 img_base64 = browser.execute_script("""
@@ -46,8 +51,14 @@ def GetImage():
                 res = ocr.classification(img_bytes)
                 browser.find_element(By.XPATH,"//input[@id='code']").send_keys(res)
                 browser.find_element(By.XPATH,"//input[@id='code']").send_keys('\ue007')
+                
             except:
-                print('Wait for next Image...')
+                if a <= 30:
+                    a += 1
+                    print(f'Wait for next Image...{a}')
+                else:
+                    print('Ended')
+                    break
         
 if __name__ =='__main__':
     OpenBrowser()
